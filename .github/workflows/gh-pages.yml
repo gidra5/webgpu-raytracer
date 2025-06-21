@@ -42,7 +42,7 @@ jobs:
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4
         with:
-          name: production-files
+          name: github-pages
           path: ./docs
   # Build job
   # build:
@@ -70,11 +70,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: production-files
-          path: ./_site
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: github-pages
+      #     path: ./_site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
