@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Raytracing in WebGPU for educational purposes",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fmt": "prettier --write . --config .prettierrc.json"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
   "homepage": "https://github.com/gnikoloff/webgpu-raytracer#readme",
   "devDependencies": {
     "@webgpu/types": "^0.1.40",
+    "prettier": "^3.5.3",
     "vite": "^5.0.10",
     "vite-plugin-top-level-await": "^1.4.1"
   },

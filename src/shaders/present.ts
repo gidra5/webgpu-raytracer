@@ -1,9 +1,9 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
-import CameraShaderChunk from "./utils/camera";
-import CommonShaderChunk from "./utils/common";
-import ColorShaderChunk from "./utils/color";
-import VertexShaderChunk from "./utils/vertex";
+import CameraShaderChunk from './utils/camera';
+import CommonShaderChunk from './utils/common';
+import ColorShaderChunk from './utils/color';
+import VertexShaderChunk from './utils/vertex';
 
 export default wgsl/* wgsl */ `
   ${CameraShaderChunk}

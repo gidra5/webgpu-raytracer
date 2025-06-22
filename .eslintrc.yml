@@ -1,0 +1,74 @@
+env:
+  commonjs: true
+  browser: true
+  es6: true
+  node: true
+extends:
+  - 'eslint:recommended'
+  - 'plugin:@typescript-eslint/eslint-recommended'
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parserOptions:
+  ecmaVersion: 2020
+plugins:
+  - '@typescript-eslint'
+rules:
+  no-loop-func:
+    - error
+  block-spacing:
+    - error
+    - always
+  camelcase:
+    - error
+  eqeqeq:
+    - error
+    - always
+  strict:
+    - error
+    - global
+  dot-location:
+    - error
+    - property
+  no-lonely-if:
+    - error
+  operator-linebreak:
+    - error
+    - after
+  operator-assignment:
+    - error
+    - always
+  no-trailing-spaces:
+    - error
+  space-before-function-paren:
+    - error
+    - anonymous: never
+      named: never
+      asyncArrow: always
+  no-constant-condition:
+    - error
+    - checkLoops: false
+  space-infix-ops:
+    - error
+  no-self-compare:
+    - error
+  no-console:
+    - off
+  arrow-parens:
+    - error
+    - as-needed
+  max-len:
+    - error
+    - 120
+  indent:
+    - error
+    - 2
+  linebreak-style:
+    - error
+    - unix
+  quotes:
+    - error
+    - double
+  semi:
+    - error
+    - always

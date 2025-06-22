@@ -1,13 +1,13 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
-import UtilsShaderChunk from "./utils/utils";
-import CommonShaderChunk from "./utils/common";
-import RayShaderChunk from "./utils/ray";
-import VecShaderChunk from "./utils/vec";
-import IntervalShaderChunk from "./utils/interval";
-import CameraShaderChunk from "./utils/camera";
-import ColorShaderChunk from "./utils/color";
-import MaterialShaderChunk from "./utils/material";
+import UtilsShaderChunk from './utils/utils';
+import CommonShaderChunk from './utils/common';
+import RayShaderChunk from './utils/ray';
+import VecShaderChunk from './utils/vec';
+import IntervalShaderChunk from './utils/interval';
+import CameraShaderChunk from './utils/camera';
+import ColorShaderChunk from './utils/color';
+import MaterialShaderChunk from './utils/material';
 
 export default wgsl/* wgsl */ `
   const BV_MAX_STACK_DEPTH = 16;

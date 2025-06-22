@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "lib": ["ES2015", "DOM"],
-    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
+    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"],
+    "esModuleInterop": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node"
   }
 }

@@ -1,4 +1,4 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
 export default wgsl/* wgsl */ `
   struct VertexOutput {

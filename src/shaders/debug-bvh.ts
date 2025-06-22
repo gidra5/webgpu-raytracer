@@ -1,7 +1,7 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
-import CommonShaderChunk from "./utils/common";
-import VertexShaderChunk from "./utils/vertex";
+import CommonShaderChunk from './utils/common';
+import VertexShaderChunk from './utils/vertex';
 
 export default wgsl/* wgsl */ `
   ${CommonShaderChunk}

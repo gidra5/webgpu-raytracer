@@ -1,4 +1,4 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
 export default wgsl/* wgsl */ `
   // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"

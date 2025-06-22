@@ -1,4 +1,4 @@
-import { wgsl } from "wgsl-preprocessor/wgsl-preprocessor.js";
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
 export default wgsl/* wgsl */ `
   const f32min = 0x1p-126f;
