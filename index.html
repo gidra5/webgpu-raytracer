@@ -6,44 +6,7 @@
     <!-- Primary Meta Tags -->
     <title>WebGPU Raytracer</title>
     <meta name="title" content="WebGPU Raytracer" />
-    <meta
-      name="description"
-      content="Realtime pathtracing via WebGPU compute shader"
-    />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://gnikoloff.github.io/webgpu-raytracer/"
-    />
-    <meta property="og:title" content="WebGPU Raytracer" />
-    <meta
-      property="og:description"
-      content="Realtime pathtracing via WebGPU compute shader"
-    />
-    <meta
-      property="og:image"
-      content="https://gnikoloff.github.io/webgpu-raytracer/social.png"
-    />
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta
-      property="twitter:url"
-      content="https://gnikoloff.github.io/webgpu-raytracer/"
-    />
-    <meta property="twitter:title" content="WebGPU Raytracer" />
-    <meta
-      property="twitter:description"
-      content="Realtime pathtracing via WebGPU compute shader"
-    />
-    <meta
-      property="twitter:image"
-      content="https://gnikoloff.github.io/webgpu-raytracer/social.png"
-    />
-
-    <!-- Meta Tags Generated with https://metatags.io -->
     <style>
       body {
         font-size: 14px;
@@ -201,19 +164,13 @@
 
     <header id="header">
       <h1>WebGPU Raytracer</h1>
-      <h5>
-        Code & info on
-        <a href="https://github.com/gnikoloff/webgpu-raytracer" target="_blank"
-          >Github</a
-        >. Made by
-        <a target="_blank" href="https://georgi-nikolov.com/">Georgi Nikolov</a>
-      </h5>
       <p>Hold left mouse button to rotate and right to pan.</p>
       <div id="loader">
         <div id="progress"><span id="progress-percent"></span></div>
       </div>
       <p>Sample counter: <span id="frame-count"></span></p>
       <p>Time expired: <span id="time-expired"></span></p>
+      <p>Frame-time: <span id="frame-time"></span></p>
     </header>
 
     <script>

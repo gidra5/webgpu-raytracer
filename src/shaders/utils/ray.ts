@@ -21,10 +21,10 @@ export default wgsl/* wgsl */ `
     // Mäller-Trumbore algorithm
     // https://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
 
-    // let fnDotRayDir = dot((*face).faceNormal, (*ray).direction);
-    // if (abs(fnDotRayDir) < EPSILON) {
-    //   return false; // ray direction almost parallel
-    // }
+    let fnDotRayDir = dot((*face).faceNormal, (*ray).direction);
+    if (abs(fnDotRayDir) < EPSILON) {
+      return false; // ray direction almost parallel
+    }
 
     let e1 = (*face).p1 - (*face).p0;
     let e2 = (*face).p2 - (*face).p0;
@@ -148,24 +148,24 @@ export default wgsl/* wgsl */ `
   }
 
   @must_use
-  fn getCameraRay(camera: ptr<function, Camera>, i: f32, j: f32, rngState: ptr<function, u32>) -> Ray {
+  fn getCameraRay(camera: ptr<function, Camera>, i: f32, j: f32) -> Ray {
     let pixelCenter = (*camera).pixel00Loc + (i * (*camera).pixelDeltaU) + (j * (*camera).pixelDeltaV);
-    let pixelSample = pixelCenter + pixelSampleSquare(camera, rngState);
-    let rayOrigin = select(defocusDiskSample(camera, rngState), (*camera).center, (*camera).defocusAngle <= 0);
+    let pixelSample = pixelCenter + pixelSampleSquare(camera);
+    let rayOrigin = select(defocusDiskSample(camera), (*camera).center, (*camera).defocusAngle <= 0);
     let rayDirection = pixelSample - rayOrigin;
     return Ray(rayOrigin, rayDirection);
   }
 
   @must_use
-  fn defocusDiskSample(camera: ptr<function, Camera>, rngState: ptr<function, u32>) -> vec3f {
-    let p = randomVec3InUnitDisc(rngState);
+  fn defocusDiskSample(camera: ptr<function, Camera>) -> vec3f {
+    let p = sample_incircle(random_2());
     return (*camera).center + (p.x * (*camera).defocusDiscU) + (p.y * (*camera).defocusDiscV);
   }
 
   @must_use
-  fn pixelSampleSquare(camera: ptr<function, Camera>, rngState: ptr<function, u32>) -> vec3<f32> {
-    let px = -0.5 + rngNextFloat(rngState);
-    let py = -0.5 + rngNextFloat(rngState);
+  fn pixelSampleSquare(camera: ptr<function, Camera>) -> vec3<f32> {
+    let px = -0.5 + random_1();
+    let py = -0.5 + random_1();
     return (px * (*camera).pixelDeltaU) + (py * (*camera).pixelDeltaV);
   }
 `;

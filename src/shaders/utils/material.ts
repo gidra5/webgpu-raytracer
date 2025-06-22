@@ -15,10 +15,9 @@ export default wgsl/* wgsl */ `
     ray: ptr<function, Ray>,
     scattered: ptr<function, Ray>,
     hitRec: ptr<function, HitRecord>,
-    attenuation: ptr<function, vec3f>,
-    rngState: ptr<function, u32>
+    attenuation: ptr<function, vec3f>
   ) -> bool {
-    var scatterDirection = (*hitRec).normal + randomUnitVec3(rngState);
+    var scatterDirection = (*hitRec).normal + sample_sphere(random_2());
     if (nearZero(scatterDirection)) {
       scatterDirection = (*hitRec).normal;
     }
@@ -33,11 +32,10 @@ export default wgsl/* wgsl */ `
     ray: ptr<function, Ray>,
     scattered: ptr<function, Ray>,
     hitRec: ptr<function, HitRecord>,
-    attenuation: ptr<function, vec3f>,
-    rngState: ptr<function, u32>
+    attenuation: ptr<function, vec3f>
   ) -> bool {
     let reflected = reflect(normalize((*ray).direction), (*hitRec).normal);
-    (*scattered) = Ray((*hitRec).p, reflected + (*material).reflectionGloss * randomUnitVec3(rngState));
+    (*scattered) = Ray((*hitRec).p, reflected + (*material).reflectionGloss * sample_sphere(random_2()));
     (*attenuation) = (*material).albedo;
     return (dot((*scattered).direction, (*hitRec).normal) >= 0);
   }
@@ -48,8 +46,7 @@ export default wgsl/* wgsl */ `
     ray: ptr<function, Ray>,
     scattered: ptr<function, Ray>,
     hitRec: ptr<function, HitRecord>,
-    attenuation: ptr<function, vec3f>,
-    rngState: ptr<function, u32>
+    attenuation: ptr<function, vec3f>
   ) -> bool {
     *attenuation = vec3f(1);
     let refractRatio = select((*material).refractionIndex, 1.0 / (*material).refractionIndex, (*hitRec).frontFace);
@@ -60,7 +57,7 @@ export default wgsl/* wgsl */ `
     let direction = select(
       refract(unitDirection, (*hitRec).normal, refractRatio),
       reflect(unitDirection, (*hitRec).normal),
-      cannotRefract || reflectance(cosTheta, refractRatio) > rngNextFloat(rngState)
+      cannotRefract || reflectance(cosTheta, refractRatio) > random_1()
     );
     (*scattered) = Ray((*hitRec).p, direction);
     return true;
@@ -73,5 +70,4 @@ export default wgsl/* wgsl */ `
     r0 *= r0;
     return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
   }
-
 `;

@@ -1,6 +1,9 @@
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
 export default wgsl/* wgsl */ `
+  const f32min = 0x1p-126f;
+  const f32max = 0x1.fffffep+127;
+  
   struct Interval {
     min: f32,
     max: f32,

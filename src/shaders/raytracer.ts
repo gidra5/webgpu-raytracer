@@ -1,6 +1,5 @@
 import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor.js';
 
-import UtilsShaderChunk from './utils/utils';
 import CommonShaderChunk from './utils/common';
 import RayShaderChunk from './utils/ray';
 import VecShaderChunk from './utils/vec';
@@ -8,12 +7,12 @@ import IntervalShaderChunk from './utils/interval';
 import CameraShaderChunk from './utils/camera';
 import ColorShaderChunk from './utils/color';
 import MaterialShaderChunk from './utils/material';
+import ConstantsShaderChunk from './utils/constants';
+import RngShaderChunk from './utils/rng';
 
 export default wgsl/* wgsl */ `
-  const BV_MAX_STACK_DEPTH = 16;
-  const EPSILON = 0.001;
-
-  ${UtilsShaderChunk}
+  ${RngShaderChunk}
+  ${ConstantsShaderChunk}
   ${CommonShaderChunk}
   ${RayShaderChunk}
   ${VecShaderChunk}
@@ -38,7 +37,7 @@ export default wgsl/* wgsl */ `
   override MAX_FACES_COUNT_PER_MESH: u32;
 
   @compute @workgroup_size(WORKGROUP_SIZE_X, WORKGROUP_SIZE_Y)
-  fn main(@builtin(global_invocation_id) globalInvocationId : vec3<u32>,) {
+  fn main(@builtin(global_invocation_id) globalInvocationId: vec3<u32>) {
     if (any(globalInvocationId.xy > cameraUniforms.viewportSize)) {
       return;
     }
@@ -49,13 +48,14 @@ export default wgsl/* wgsl */ `
     let idx = pos.x + pos.y * cameraUniforms.viewportSize.x;
 
     var rngState = rngStateBuffer[idx];
+    rng_state = rngState;
 
     var camera = cameraUniforms;
     initCamera(&camera);
     
     var hitRec: HitRecord;
 
-    var r = getCameraRay(&camera, x, y, &rngState);
+    var r = getCameraRay(&camera, x, y);
 
     var color = vec3f(0);
 
@@ -83,7 +83,7 @@ export default wgsl/* wgsl */ `
         }
         case 1: {
           if (i < commonUniforms.maxBounces) {
-            var scatters = scatterMetal(&material, &r, &scattered, &hitRec, &albedo, &rngState);
+            var scatters = scatterMetal(&material, &r, &scattered, &hitRec, &albedo);
             if (scatters) {
               i++;
               r = scattered;
@@ -100,7 +100,7 @@ export default wgsl/* wgsl */ `
         }
         case 2: {
           if (i < commonUniforms.maxBounces) {
-            var scatters = scatterDielectric(&material, &r, &scattered, &hitRec, &albedo, &rngState);  
+            var scatters = scatterDielectric(&material, &r, &scattered, &hitRec, &albedo);  
             r = scattered;
             i++;
           } else {
@@ -110,7 +110,7 @@ export default wgsl/* wgsl */ `
           break;
         }
         case 3: {
-          var scatters = scatterLambertian(&material, &r, &scattered, &hitRec, &albedo, &rngState);
+          var scatters = scatterLambertian(&material, &r, &scattered, &hitRec, &albedo);
           if (i < commonUniforms.maxBounces) {
             i++;
             r = scattered;
@@ -140,6 +140,6 @@ export default wgsl/* wgsl */ `
     pixel += color;
     raytraceImageBuffer[idx] = pixel;
 
-    rngStateBuffer[idx] = rngState;
+    rngStateBuffer[idx] = rng_state;
   }
 `;

@@ -30,6 +30,8 @@ const $frameCounter = document.getElementById('frame-count');
 const $timeExpired = document.getElementById('time-expired');
 const $progress = document.getElementById('progress');
 const $progresPercent = document.getElementById('progress-percent');
+const $frameTime = document.getElementById('frame-time');
+let frameTime = 0;
 
 // GUI
 const guiSettings = {
@@ -449,6 +451,12 @@ function drawFrame() {
   timeExpiredMs += diff;
   requestAnimationFrame(drawFrame);
 
+  if (frameTime === 0) {
+    frameTime = diff;
+  } else {
+    frameTime = frameTime * 0.2 + diff * 0.8;
+  }
+
   $frameCounter.textContent = frameCounter.toString();
   $timeExpired.textContent = dayjs.duration(timeExpiredMs).format('mm:ss');
   const progresPercent = (frameCounter / guiSettings['Max Samples']) * 100;
@@ -456,6 +464,7 @@ function drawFrame() {
   $progresPercent.className =
     progresPercent < 5 ? 'docked-left' : 'docked-right';
   $progresPercent.textContent = `${progresPercent.toFixed(0)}%`;
+  $frameTime.textContent = `${frameTime.toFixed(2)} ms`;
 
   if (frameCounter === guiSettings['Max Samples']) {
     return;
