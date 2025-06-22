@@ -31,7 +31,11 @@ const $timeExpired = document.getElementById('time-expired');
 const $progress = document.getElementById('progress');
 const $progresPercent = document.getElementById('progress-percent');
 const $frameTime = document.getElementById('frame-time');
+const $gpuTime = document.getElementById('gpu-time');
+const $jsTime = document.getElementById('js-time');
 let frameTime = 0;
+let jsTime = 0;
+let gpuTime = 0;
 
 // GUI
 const guiSettings = {
@@ -48,9 +52,14 @@ const canvas = document.createElement('canvas') as HTMLCanvasElement;
 canvas.setAttribute('id', 'c');
 resize();
 const adapter = await navigator.gpu.requestAdapter();
-const device = await adapter.requestDevice({
-  requiredLimits: {},
-});
+const requiredFeatures: GPUFeatureName[] = [];
+const canTimestamp = adapter.features.has('timestamp-query');
+
+if (canTimestamp) {
+  requiredFeatures.push('timestamp-query');
+}
+
+const device = await adapter?.requestDevice({ requiredFeatures });
 const context = canvas.getContext('webgpu') as GPUCanvasContext;
 const presentationFormat = navigator.gpu.getPreferredCanvasFormat
   ? navigator.gpu.getPreferredCanvasFormat()
@@ -60,6 +69,26 @@ context.configure({
   format: presentationFormat,
   alphaMode: 'premultiplied',
 });
+
+const { querySet, resolveBuffer, resultBuffer } = (() => {
+  if (!canTimestamp) {
+    return {};
+  }
+
+  const querySet = device.createQuerySet({
+    type: 'timestamp',
+    count: 2,
+  });
+  const resolveBuffer = device.createBuffer({
+    size: querySet.count * 8,
+    usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+  });
+  const resultBuffer = device.createBuffer({
+    size: resolveBuffer.size,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  });
+  return { querySet, resolveBuffer, resultBuffer };
+})();
 
 // Set up camera and scene
 const camera = new Camera(
@@ -415,6 +444,13 @@ const renderPassDescriptor: GPURenderPassDescriptor = {
       storeOp: 'store',
     },
   ],
+  ...(canTimestamp && {
+    timestampWrites: {
+      querySet,
+      beginningOfPassWriteIndex: 0,
+      endOfPassWriteIndex: 1,
+    },
+  }),
 };
 
 // Init app
@@ -449,7 +485,6 @@ function drawFrame() {
   const diff = nowMs - oldTimeMs;
   oldTimeMs = nowMs;
   timeExpiredMs += diff;
-  requestAnimationFrame(drawFrame);
 
   if (frameTime === 0) {
     frameTime = diff;
@@ -465,6 +500,8 @@ function drawFrame() {
     progresPercent < 5 ? 'docked-left' : 'docked-right';
   $progresPercent.textContent = `${progresPercent.toFixed(0)}%`;
   $frameTime.textContent = `${frameTime.toFixed(2)} ms`;
+  $gpuTime.textContent = `${canTimestamp ? `${(gpuTime / 1000).toFixed(2)}µs` : 'N/A'}`;
+  $jsTime.textContent = `${jsTime.toFixed(2)} ms`;
 
   if (frameCounter === guiSettings['Max Samples']) {
     return;
@@ -505,10 +542,10 @@ function drawFrame() {
     camera.viewProjectionMatrix
   );
 
-  const commandEncoder = device.createCommandEncoder();
+  const encoder = device.createCommandEncoder();
 
   // raytrace
-  const computePass = commandEncoder.beginComputePass();
+  const computePass = encoder.beginComputePass();
   computePass.setPipeline(computePipeline);
   computePass.setBindGroup(0, computeBindGroup0);
   computePass.setBindGroup(1, computeBindGroup1);
@@ -522,7 +559,7 @@ function drawFrame() {
   renderPassDescriptor.colorAttachments[0].view = context
     .getCurrentTexture()
     .createView();
-  const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
+  const renderPass = encoder.beginRenderPass(renderPassDescriptor);
 
   // blit raytraced image buffer to screen
   renderPass.setPipeline(blitToScreenPipeline);
@@ -537,9 +574,46 @@ function drawFrame() {
   }
 
   renderPass.end();
-  device.queue.submit([commandEncoder.finish()]);
+
+  if (canTimestamp) {
+    encoder.resolveQuerySet(querySet, 0, querySet.count, resolveBuffer, 0);
+    if (resultBuffer.mapState === 'unmapped') {
+      encoder.copyBufferToBuffer(
+        resolveBuffer,
+        0,
+        resultBuffer,
+        0,
+        resultBuffer.size
+      );
+    }
+  }
+
+  device.queue.submit([encoder.finish()]);
+
+  if (canTimestamp && resultBuffer.mapState === 'unmapped') {
+    resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
+      const times = new BigInt64Array(resultBuffer.getMappedRange());
+      const diff = Number(times[1] - times[0]);
+
+      if (gpuTime === 0) {
+        gpuTime = diff;
+      } else {
+        gpuTime = gpuTime * 0.2 + diff * 0.8;
+      }
+
+      resultBuffer.unmap();
+    });
+  }
+
+  const jsTimeDiff = performance.now() - nowMs;
+  if (jsTime === 0) {
+    jsTime = jsTimeDiff;
+  } else {
+    jsTime = jsTime * 0.2 + jsTimeDiff * 0.8;
+  }
 
   frameCounter++;
+  requestAnimationFrame(drawFrame);
 }
 
 function resize() {
